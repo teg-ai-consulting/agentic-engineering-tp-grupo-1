@@ -1,0 +1,12 @@
+PagerDuty — items-service — 2026-09-20 21:07 UTC
+
+[P1] items-service.http.p99_latency > 3s durante 6m  (endpoint: GET /v1/items)
+      p50  190ms → 210ms
+      p99  200ms → 8.4s
+      error_rate (504 gateway timeout)  0.1% → 11%
+
+Contexto: promo "Semana del Envío Gratis" arrancó 20:30 UTC. Tráfico al home
+x5 vs. baseline. items-service escaló de 3 a 8 réplicas a las 20:45, sin efecto.
+El resto de los endpoints (GET /v1/items/{id}) sin degradación.
+
+Se recupera solo 22:40 cuando cae el tráfico de la promo.

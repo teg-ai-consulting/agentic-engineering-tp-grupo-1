@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  title: items-service
+  version: "1.0"
+paths:
+  /v1/items:
+    get:
+      summary: Lista items del home (paginación por cursor)
+      parameters:
+        - { name: cursor, in: query, required: false, schema: { type: string } }
+        - { name: limit, in: query, required: false, schema: { type: integer, default: 20, maximum: 100 } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Item" }
+                  next_cursor: { type: [string, "null"] }
+  /v1/items/{id}:
+    get:
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Item" } } } }
+        "404": { description: RFC 7807 }
+components:
+  schemas:
+    Item:
+      type: object
+      required: [id, titulo, precio_centavos, moneda, vendedor_id, vendedor_nombre, publicado_en]
+      properties:
+        id: { type: string }
+        titulo: { type: string }
+        precio_centavos: { type: integer }
+        moneda: { type: string, enum: [ARS] }
+        vendedor_id: { type: string }
+        vendedor_nombre: { type: string, description: "denormalizado (ADR-0001)" }
+        publicado_en: { type: string, format: date-time }
+        foto_url: { type: [string, "null"], description: "URL a object storage (ADR-0004)" }

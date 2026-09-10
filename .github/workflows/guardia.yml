@@ -1,0 +1,45 @@
+# El pipeline programado. Pollea "To-Do" del board y corre la factory sola.
+# Viene hecho. Toda la orquestación está en guardia/guardia-prompt.md.
+
+name: Guardia (pipeline programado)
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"     # cada 30 min (GitHub no baja de ~5 y suele demorar)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write   # claude-code-action lo necesita (OIDC)
+
+jobs:
+  guardia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: oven-sh/setup-bun@v2
+      - uses: astral-sh/setup-uv@v6
+
+      - uses: anthropics/claude-code-action@v1
+        env:
+          # Los MCP se configuran vía .mcp.json del repo (con ${VAR}). Slack:
+          # si SLACK_* no está, el server no conecta y el guardia omite el aviso.
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_BOARD_ID: ${{ vars.TRELLO_BOARD_ID }}
+          CONFLUENCE_URL: ${{ vars.CONFLUENCE_URL }}
+          CONFLUENCE_USERNAME: ${{ vars.CONFLUENCE_USERNAME }}
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_TEAM_ID: ${{ vars.SLACK_TEAM_ID }}
+          SLACK_CHANNEL_IDS: ${{ vars.SLACK_CHANNEL_IDS }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: |
+            --mcp-config .mcp.json
+            --allowedTools Task,Read,Grep,Glob,Bash,Write,Edit,mcp__trello,mcp__atlassian,mcp__slack
+          prompt: |
+            Leé y seguí `guardia/guardia-prompt.md` al pie de la letra. Es tu
+            único set de instrucciones. Respetá `GOBERNANZA.md`.

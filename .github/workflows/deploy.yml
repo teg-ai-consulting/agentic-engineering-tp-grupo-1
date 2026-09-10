@@ -1,0 +1,37 @@
+# Deploy stub. Al mergear a main: smoke test + registra en prod/deploy-log.jsonl
+# + comenta en la card de Trello. No despliega infra real. Viene hecho.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["prod/**"]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q fastapi httpx pytest
+
+      - name: smoke test
+        run: |
+          cd items-service && python -m pytest -q -k "ok"
+
+      - name: registrar deploy
+        run: |
+          entry=$(python3 -c "import json,datetime,subprocess;print(json.dumps({'ts':datetime.datetime.utcnow().isoformat()+'Z','commit':'${{ github.sha }}'[:7],'descripcion':'''${{ github.event.head_commit.message }}'''.split(chr(10))[0],'deploy_por':'ci'}))")
+          echo "$entry" >> prod/deploy-log.jsonl
+          git config user.name "deploy-bot"
+          git config user.email "deploy@ci"
+          git add prod/deploy-log.jsonl
+          git commit -m "deploy: registro [skip ci]" && git push || echo "sin cambios"
+
+      # TODO (opcional): un paso `claude -p` que comente "[deploy] ok" en la card
+      # de Trello usando la skill registrar-en-card.

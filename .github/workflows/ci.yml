@@ -1,0 +1,27 @@
+# CI — lint + tests. Corre en cada PR. Viene hecho, no hay que tocarlo.
+
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q fastapi httpx pytest ruff
+      - name: lint
+        run: ruff check .
+      - name: tests
+        run: |
+          for svc in items-service vendedores-service usuarios-service compras-service; do
+            [ -d "$svc" ] && (cd "$svc" && python -m pytest -q) || true
+          done

@@ -1,0 +1,19 @@
+# Lint del codigo-inicial. Los servicios y sus tests tienen que pasar limpio.
+# pr-a-revisar/ y evals/ NO se lintean: traen problemas a propósito.
+
+target-version = "py312"
+
+extend-exclude = [
+  "pr-a-revisar",
+  "evals",
+  ".claude",
+  "docs",
+  "contexto",
+]
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[lint.per-file-ignores]
+"**/test_*.py" = ["I001", "F401"]

@@ -1,0 +1,22 @@
+# PostgreSQL slow query log — items_db — ventana 21:00–21:10 UTC 2026-09-20
+# log_min_duration_statement = 100ms
+
+2026-09-20 21:03:11 UTC  duration: 142 ms   SELECT id, titulo, precio_centavos, moneda, vendedor_id, publicado_en, foto_url FROM items ORDER BY id LIMIT 21
+2026-09-20 21:03:11 UTC  duration: 2 ms     SELECT nombre, reputacion FROM vendedores WHERE id = $1   -- $1 = 'v1'
+2026-09-20 21:03:11 UTC  duration: 2 ms     SELECT nombre, reputacion FROM vendedores WHERE id = $1   -- $1 = 'v2'
+2026-09-20 21:03:11 UTC  duration: 2 ms     SELECT nombre, reputacion FROM vendedores WHERE id = $1   -- $1 = 'v3'
+... (18 líneas SELECT ... FROM vendedores WHERE id = $1, una por item del listado)
+
+2026-09-20 21:06:40 UTC  duration: 5,910 ms  SELECT nombre, reputacion FROM vendedores WHERE id = $1
+2026-09-20 21:06:44 UTC  duration: 7,220 ms  SELECT id, titulo, ... FROM items ORDER BY id LIMIT 21
+2026-09-20 21:06:48 UTC  FATAL: remaining connection slots are reserved for non-replication superuser connections
+2026-09-20 21:06:48 UTC  LOG: connection pool exhausted (20/20), 47 requests waiting
+
+# pgbouncer stats 21:06 UTC:
+#   pool_mode=session  max_client_conn=20  cl_active=20  cl_waiting=47
+#   avg_query_time subiendo de 3ms a 6100ms
+
+# Nota del SRE de guardia:
+#   "cada GET /v1/items dispara ~20 queries a vendedores (una por item de la
+#    página). Con x5 de tráfico son ~miles de queries chiquitas concurrentes;
+#    el pool de 20 conexiones no da abasto y todo entra en cola."

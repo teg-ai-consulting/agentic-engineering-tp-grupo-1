@@ -1,0 +1,55 @@
+{
+  "plataforma": "Marketplace",
+  "servicios": [
+    {
+      "nombre": "usuarios-service",
+      "descripcion": "Cuentas, autenticación (JWT), perfiles de comprador.",
+      "equipo": "Identidad",
+      "lenguaje": "Python 3.12",
+      "framework": "FastAPI",
+      "persistencia": "PostgreSQL — base propia usuarios_db",
+      "expone": ["REST GET /v1/usuarios/{id}", "REST POST /v1/auth/login"],
+      "eventos_publica": ["usuario.registrado"]
+    },
+    {
+      "nombre": "vendedores-service",
+      "descripcion": "Tiendas, reputación y datos públicos del vendedor.",
+      "equipo": "Vendedores",
+      "lenguaje": "Python 3.12",
+      "framework": "FastAPI",
+      "persistencia": "PostgreSQL — base propia vendedores_db",
+      "expone": ["REST GET /v1/vendedores/{id}", "REST GET /v1/vendedores?ids="],
+      "eventos_publica": ["vendedor.reputacion-actualizada"]
+    },
+    {
+      "nombre": "items-service",
+      "descripcion": "Publicaciones: título, precio, stock, estado. Es el que alimenta el listado del home.",
+      "equipo": "Catálogo",
+      "lenguaje": "Python 3.12",
+      "framework": "FastAPI",
+      "persistencia": "PostgreSQL — base propia items_db",
+      "expone": ["REST GET /v1/items", "REST GET /v1/items/{id}"],
+      "eventos_publica": ["item.publicado", "item.pausado"],
+      "eventos_consume": ["vendedor.reputacion-actualizada"]
+    },
+    {
+      "nombre": "compras-service",
+      "descripcion": "Órdenes de compra e historial del comprador ('Mis compras').",
+      "equipo": "Checkout",
+      "lenguaje": "Python 3.12",
+      "framework": "FastAPI",
+      "persistencia": "PostgreSQL — base propia compras_db",
+      "expone": ["REST GET /v1/compras", "REST POST /v1/compras"],
+      "eventos_publica": ["compra.confirmada"],
+      "eventos_consume": ["item.publicado"],
+      "estado": "no implementado — backlog del PO ('Mis compras')"
+    },
+    {
+      "nombre": "web",
+      "descripcion": "Frontend. Hoy solo lista items del home.",
+      "equipo": "Web",
+      "lenguaje": "HTML + JS (vanilla)",
+      "consume": ["items-service", "vendedores-service", "compras-service"]
+    }
+  ]
+}
