@@ -2,3 +2,4 @@
 {"ts": "2026-09-11T11:40:00Z", "servicio": "items-service", "commit": "e4f5g6h", "descripcion": "bump de dependencias (rutina mensual)", "deploy_por": "ci"}
 {"ts": "2026-09-10T22:24:34.745156Z", "commit": "ad8c939", "descripcion": "template del TP final (Clases 4 y 5)", "deploy_por": "ci"}
 {"ts": "2026-09-11T06:57:25.288841Z", "commit": "d88f20f", "descripcion": "workflows: --model sonnet (era Opus)", "deploy_por": "ci"}
+{"ts": "2026-09-11T06:57:49.312810Z", "commit": "b70be5c", "descripcion": "workflows: --model sonnet (era Opus)", "deploy_por": "ci"}
