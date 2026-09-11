@@ -31,6 +31,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: |
+            --model sonnet
             --allowedTools Task,Read,Grep,Glob,Bash,Write,Edit
           prompt: |
             Sos el runner de evals del pipeline. Corrés cada caso de `evals/`
