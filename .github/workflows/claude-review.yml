@@ -35,6 +35,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: |
+            --model sonnet
             --mcp-config .mcp.json
             --allowedTools Task,Read,Grep,Glob,Bash,Write,mcp__trello,mcp__atlassian
           prompt: |
